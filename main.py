@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-# @Author : Liang Zhang
 # @Email : zl16035056@163.com
 # @File : main.py
 
