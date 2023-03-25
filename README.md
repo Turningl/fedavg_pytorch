@@ -17,4 +17,4 @@ python main.py
 ```
 
 # Further Readings
-What's more, the experiment of this paper will be repeated in the future “Projected Federated Averaging with Heterogeneous Differential Privacy” (accepted by VLDB 2022).
+What's more, the experiment of this paper will be reproduced in the future “Projected Federated Averaging with Heterogeneous Differential Privacy” (accepted by VLDB 2022).
