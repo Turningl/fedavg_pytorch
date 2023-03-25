@@ -112,7 +112,6 @@ def main(args):
 
         # test
         test_acc, test_loss = test(global_model, x_test, y_test)
-
         print('Test acc: %.4f  Test loss: %.4f' % (test_acc, test_loss))
 
 
