@@ -1,4 +1,4 @@
-# federated Learning With Opacus (PyTorch)
+# Federated Learning With Opacus (PyTorch)
 
 In this repository, I used PyTorch and Opacus to simulate the fedavg algorithm of federated learning. And add differential privacy in the models.
 
