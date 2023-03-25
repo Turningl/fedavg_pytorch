@@ -16,5 +16,5 @@ In this repository, I used PyTorch and Opacus to simulate the fedavg algorithm o
 python main.py
 ```
 
-# Further Readings
-What's more, the experiment of this paper will be reproduced in the future “Projected Federated Averaging with Heterogeneous Differential Privacy” (accepted by VLDB 2022).
+# Advantage
+Compared to the fedavg done by others, my model is more featured, you can watch my code.
