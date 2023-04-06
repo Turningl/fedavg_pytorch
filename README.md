@@ -17,4 +17,4 @@ python main.py
 ```
 
 # Advantage
-Compared to the fedavg done by others, my model is more featured, you can watch my code.
+Compared to the fedavg done by others, my model is more featured, you can see my code.
