@@ -12,8 +12,13 @@ In this repository, I used PyTorch and Opacus to simulate the fedavg algorithm o
 
 
 # Running the experiments
+* Running fedavg algorithm with differential privacy
 ```
 python main.py
+```
+* Running fedprox algorithm with differential privacy
+```
+python main.py --fedprox True
 ```
 
 # Advantage
