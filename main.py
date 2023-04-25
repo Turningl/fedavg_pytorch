@@ -136,7 +136,7 @@ if __name__ == '__main__':
     parser.add_argument('--sample_ratio', type=float, default=0.8)
     parser.add_argument('--all_clients', type=int, default=10)
     parser.add_argument('--mu', type=float, default=0.1)
-    parser.add_argument('--fedprox', type=bool, default=True)
+    parser.add_argument('--fedprox', type=bool, default=False)
     args = parser.parse_args()
 
     main(args)
