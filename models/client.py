@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 # @Email : zl16035056@163.com
 # @File : client.py
-
+import copy
 
 import torch
 import torch.nn as nn
@@ -10,7 +10,7 @@ from opacus import PrivacyEngine
 
 
 class Client(nn.Module):
-    def __init__(self, x_train, y_train, dataset, batch_size, dp, epoch, sigma, grad_norm, device):
+    def __init__(self, x_train, y_train, dataset, batch_size, dp, epoch, sigma, grad_norm, fedprox, mu, device):
         super(Client, self).__init__()
         self.x_train = x_train
         self.y_train = y_train
@@ -21,6 +21,8 @@ class Client(nn.Module):
         self.sigma = sigma
         self.grad_norm = grad_norm
         self.device = device
+        self.mu = mu
+        self.fedprox = fedprox
         self.model = None
 
     def download(self, model):
@@ -33,6 +35,8 @@ class Client(nn.Module):
         model = self.model.train()
         optimizer = torch.optim.SGD(model.parameters(), lr=0.01, momentum=0.9)
         criterion = nn.CrossEntropyLoss()
+
+        global_model = copy.deepcopy(model)
 
         x_batch = self.x_train[self.dataset_size]
         y_batch = self.y_train[self.dataset_size]
@@ -56,10 +60,17 @@ class Client(nn.Module):
                 x_train, y_train = x_train.to(self.device), y_train.to(self.device)
 
                 y_pred = model(x_train)
-                loss = criterion(y_pred, y_train)
-
                 _, test_pred = torch.max(y_pred, 1)
                 correct = (test_pred == y_train).sum()
+
+                loss = criterion(y_pred, y_train)
+
+                # fedprox, add proximal term
+                if self.fedprox:
+                    proximal_term = 0
+                    for w, w_global in zip(model.parameters(), global_model.parameters()):
+                        proximal_term += self.mu / 2 * torch.norm(w - w_global, 2)
+                    loss += proximal_term
 
                 optimizer.zero_grad()
                 loss.backward()

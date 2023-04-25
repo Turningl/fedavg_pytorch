@@ -87,9 +87,16 @@ def main(args):
                         epoch=args.epochs,
                         sigma=args.sigma,
                         grad_norm=args.grad_norm,
-                        device=args.device)
+                        device=args.device,
+                        fedprox=args.fedprox,
+                        mu=args.mu)
 
         clients.append(client)
+
+    if args.dp:
+        print('Using differential privacy!')
+    if args.fedprox:
+        print('Using fedprox algorithm!')
 
     # communication
     for round in range(args.communication_round):
@@ -128,6 +135,8 @@ if __name__ == '__main__':
     parser.add_argument('--device', type=str, default='cuda')
     parser.add_argument('--sample_ratio', type=float, default=0.8)
     parser.add_argument('--all_clients', type=int, default=10)
+    parser.add_argument('--mu', type=float, default=0.1)
+    parser.add_argument('--fedprox', type=bool, default=True)
     args = parser.parse_args()
 
     main(args)
