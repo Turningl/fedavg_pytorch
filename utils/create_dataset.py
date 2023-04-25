@@ -25,35 +25,34 @@ def create_iid_clients(num_clients, num_examples, num_classes, num_examples_per_
 
 
 def create_noniid_clients(num_clients, num_examples, num_classes, num_examples_per_client, num_classes_per_client):
-    print('Number of classes per client {}'.format(num_classes_per_client))
+    num_classes = 10
 
     buckets = []
     for k in range(num_classes):
-        temp = np.array(k * int(num_examples / num_classes) + np.random.permutation(int(num_examples / num_classes)))
+        temp = []
+        for j in range(int(num_clients / 10)):
+            temp = np.hstack((temp, k * int(num_examples/10) + np.random.permutation(int(num_examples/10))))
+        # print('temp.len: ', len(temp))
         buckets = np.hstack((buckets, temp))
+        # print('buckets.len: ', len(buckets))
 
-    shards = num_classes_per_client * num_clients
+    shards = 2 * num_clients # 20
+    # ('buckets.shape:', buckets.shape, 'shards', shards) # buckets.shape: (10, 5000*(N/10))
     perm = np.random.permutation(shards)
 
-    # client_set will be of length num_examples/N and each element represents a client.
-    client_set = []
-    extra = len(buckets) % shards
-    if extra:
-        buckets = buckets[:-extra]
-    ind_list = np.split(buckets, shards)
-    print('ind_list.len:', len(ind_list))
-
-    for j in range(0, shards, num_classes_per_client):
+    # z will be of length N*5000 and each element represents a client.
+    z = []
+    ind_list = np.split(buckets, shards) # 50000/20 = 2500
+    # print('ind_list.len:', len(ind_list))
+    for j in range(0, shards, 2):
         # each entry of z is associated to two shards. the two shards are sampled randomly by using the permutation matrix
         # perm and stacking two shards together using vstack. Each client now holds 2500*2 datapoints.
-        temp = []
-        for k in range(num_classes_per_client):
-            temp = np.hstack((temp, ind_list[int(perm[j+k])]))
-        client_set.append(temp)
-        perm_2 = np.random.permutation(len(temp))
-        client_set[-1] = client_set[-1][perm_2]
+        z.append(np.hstack((ind_list[int(perm[j])], ind_list[int(perm[j + 1])])))
+        # shuffle the data in each element of z, so that each client doesn't have all digits stuck together.
+        perm_2 = np.random.permutation(int(2 * len(buckets) / shards))
+        z[-1] = z[-1][perm_2]
 
-    return client_set
+    return z
 
 
 def check_labels(N, client_set, y_train):

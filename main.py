@@ -12,6 +12,8 @@ from torchvision import datasets, transforms
 from utils.create_dataset import create_iid_clients, create_noniid_clients, check_labels
 from models.client import Client
 from models.server import Server
+from utils.dataloader import loader
+from utils.plt import plt_curve
 
 
 def test(model, x_val, y_val):
@@ -49,8 +51,8 @@ x_test = test_dataloader.data.float().unsqueeze(1)
 y_test = test_dataloader.targets
 
 
-def prepare_local_data(noniid, num_clients):
-    if noniid:
+def prepare_local_data(noniid, num_clients, y_train):
+    if not noniid:
         dataset = create_iid_clients(num_clients=num_clients,
                                      num_examples=len(x_train),
                                      num_classes=10,
@@ -70,7 +72,8 @@ def prepare_local_data(noniid, num_clients):
 
 def main(args):
     # prepare local dataset
-    dataset = prepare_local_data(args.noniid, args.num_clients)
+    x_train, y_train, x_test, y_test = loader('MNIST')
+    dataset = prepare_local_data(args.noniid, args.num_clients, y_train)
 
     # set server
     server = Server(num_clients=args.num_clients, device=args.device, sample_ratio=args.sample_ratio)
@@ -99,6 +102,7 @@ def main(args):
         print('Using fedprox algorithm!')
 
     # communication
+    test_acc_list, test_loss_list = [], []
     for round in range(args.communication_round):
         print('The communication round is: %d' % (round + 1))
         candidates = server.sample_clients(args.all_clients)
@@ -119,24 +123,31 @@ def main(args):
 
         # test
         test_acc, test_loss = test(global_model, x_test, y_test)
+        test_acc_list.append(test_acc), test_loss_list.append(test_loss)
+
         print('Test acc: %.4f  Test loss: %.4f' % (test_acc, test_loss))
+
+    if args.fedprox:
+        plt_curve('fedprox', test_acc_list, test_loss_list)
+    else:
+        plt_curve('fedavg', test_acc_list, test_loss_list)
 
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('--communication_round', type=int, default=10)
-    parser.add_argument('--epochs', type=int, default=10)
+    parser.add_argument('--communication_round', type=int, default=20)
+    parser.add_argument('--epochs', type=int, default=5)
     parser.add_argument('--noniid', type=bool, default=True, help='if True, use noniid data')
     parser.add_argument('--num_clients', type=int, default=10)
     parser.add_argument('--batch_size', type=int, default=128)
-    parser.add_argument('--dp', type=bool, default=True, help='if True, use differential privacy')
+    parser.add_argument('--dp', type=bool, default=False, help='if True, use differential privacy')
     parser.add_argument('--sigma', type=float, default=1.0)
     parser.add_argument('--grad_norm', type=float, default=1.0)
     parser.add_argument('--device', type=str, default='cuda')
     parser.add_argument('--sample_ratio', type=float, default=0.8)
     parser.add_argument('--all_clients', type=int, default=10)
     parser.add_argument('--mu', type=float, default=0.1)
-    parser.add_argument('--fedprox', type=bool, default=False)
+    parser.add_argument('--fedprox', type=bool, default=True)
     args = parser.parse_args()
 
     main(args)
