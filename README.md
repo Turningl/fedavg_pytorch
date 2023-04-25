@@ -10,7 +10,6 @@ In this repository, I used PyTorch and Opacus to simulate the __fedavg__ and __f
 * torchvision == 0.13.1
 * opacus == 1.4.0
 * numpy == 1.23.2
-* pandas == 1.23.2
 * matplotlib == 3.2.0
 * scikit-learn == 1.2.2
 
